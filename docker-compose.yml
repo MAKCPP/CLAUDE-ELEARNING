@@ -1,0 +1,12 @@
+services:
+  elearning:
+    build: .
+    image: elearning-generator:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jobs:/app/jobs
+      - ./outputs:/app/outputs
+    environment:
+      - HOME=/tmp/lo_home
+    restart: unless-stopped
