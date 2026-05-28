@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ELearning Video Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<header>
+  <div class="logo">🎓</div>
+  <div>
+    <h1>ELearning Video Generator</h1>
+    <p>Transformez vos présentations en vidéos e-learning narrées par IA</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── Upload section ── -->
+  <div class="card" style="margin-bottom:1.5rem">
+    <p class="section-title">1 — Fichiers source</p>
+
+    <div class="upload-grid">
+
+      <div class="upload-zone" data-type="audio">
+        <input type="file" accept=".mp3,.wav,.m4a,.ogg,.aac,.flac,.wma" aria-label="Fichier audio" />
+        <span class="upload-icon">🎙️</span>
+        <span class="upload-label">Narration audio</span>
+        <span class="upload-hint">MP3, WAV, M4A, OGG…</span>
+        <span class="upload-check" style="display:none">✅</span>
+        <span class="upload-filename"></span>
+      </div>
+
+      <div class="upload-zone" data-type="text">
+        <input type="file" accept=".txt,.md" aria-label="Fichier texte" />
+        <span class="upload-icon">📄</span>
+        <span class="upload-label">Texte de narration</span>
+        <span class="upload-hint">TXT ou MD — le script lu dans l'audio</span>
+        <span class="upload-check" style="display:none">✅</span>
+        <span class="upload-filename"></span>
+      </div>
+
+      <div class="upload-zone" data-type="pptx">
+        <input type="file" accept=".pptx,.ppt,.odp" aria-label="Présentation PowerPoint" />
+        <span class="upload-icon">📊</span>
+        <span class="upload-label">Présentation</span>
+        <span class="upload-hint">PPTX, PPT ou ODP</span>
+        <span class="upload-check" style="display:none">✅</span>
+        <span class="upload-filename"></span>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ── LLM config ── -->
+    <p class="section-title">2 — Modèle LLM</p>
+
+    <div class="config-row">
+      <div class="field">
+        <label for="model-select">Modèle</label>
+        <div class="select-wrap">
+          <select id="model-select">
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (recommandé)</option>
+            <option value="claude-opus-4-7">Claude Opus 4.7 (le plus puissant)</option>
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (rapide)</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o Mini (rapide)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="api-key">Clé API</label>
+        <input
+          type="password"
+          id="api-key"
+          placeholder="sk-ant-... ou sk-..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <p class="section-title">3 — Générer</p>
+    <button id="generate-btn" class="btn-generate" disabled>
+      ▶ Générer la vidéo e-learning
+    </button>
+  </div>
+
+  <!-- ── Progress ── -->
+  <div id="progress-section" class="card">
+    <p class="section-title">Traitement en cours</p>
+    <div class="progress-header">
+      <span id="progress-label" class="progress-label">Démarrage…</span>
+      <span id="progress-pct" class="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-track">
+      <div id="progress-fill" class="progress-bar-fill" style="width:0%"></div>
+    </div>
+    <ul id="step-list" class="progress-steps"></ul>
+    <div id="error-box" class="error-box"></div>
+  </div>
+
+  <!-- ── Result ── -->
+  <div id="result-section">
+    <div class="result-card">
+      <div class="result-header">
+        <span class="badge">✓ Prête</span>
+        <div>
+          <h3>Votre vidéo e-learning</h3>
+          <div class="result-meta">
+            <span id="result-slides"></span>
+            <span id="result-duration"></span>
+          </div>
+        </div>
+      </div>
+
+      <video id="result-video" controls preload="metadata">
+        Votre navigateur ne supporte pas la lecture vidéo HTML5.
+      </video>
+
+      <div class="result-actions">
+        <a id="download-btn" class="btn btn-primary" href="#" download="elearning.mp4">
+          ⬇ Télécharger MP4
+        </a>
+        <button id="new-video-btn" class="btn btn-secondary">
+          ↺ Nouvelle vidéo
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  ELearning Video Generator — Propulsé par Claude &amp; FFmpeg
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
