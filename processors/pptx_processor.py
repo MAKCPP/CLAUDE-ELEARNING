@@ -75,14 +75,24 @@ def extract_slide_texts(pptx_path: str) -> list[dict]:
 # ─────────────────────────────────────────────
 
 def _libreoffice_convert(pptx_path: Path, output_dir: Path) -> list[str]:
+    import tempfile, os
     tmp_dir = output_dir / "_lo_tmp"
     tmp_dir.mkdir(exist_ok=True)
 
+    lo_profile = Path(tempfile.mkdtemp(prefix="lo_profile_"))
+    env = {**os.environ, "HOME": str(lo_profile)}
+
     result = subprocess.run(
-        ["soffice", "--headless", "--norestore",
-         "--convert-to", "pdf", "--outdir", str(tmp_dir), str(pptx_path)],
-        capture_output=True, text=True, timeout=120,
+        [
+            "soffice", "--headless", "--norestore",
+            f"-env:UserInstallation=file://{lo_profile}",
+            "--convert-to", "pdf",
+            "--outdir", str(tmp_dir),
+            str(pptx_path),
+        ],
+        capture_output=True, text=True, timeout=120, env=env,
     )
+    shutil.rmtree(lo_profile, ignore_errors=True)
     if result.returncode != 0:
         raise RuntimeError(f"LibreOffice error: {result.stderr}")
 
