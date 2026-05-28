@@ -16,7 +16,23 @@ OPENAI_MODELS = {
     "gpt-4-turbo": "GPT-4 Turbo",
 }
 
-ALL_MODELS = {**CLAUDE_MODELS, **OPENAI_MODELS}
+# OpenRouter — clé sk-or-v1-... — https://openrouter.ai
+OPENROUTER_MODELS = {
+    "openai/gpt-4o": "OpenRouter · GPT-4o",
+    "openai/gpt-4o-mini": "OpenRouter · GPT-4o Mini (rapide)",
+    "anthropic/claude-3.5-sonnet": "OpenRouter · Claude 3.5 Sonnet",
+    "anthropic/claude-3-haiku": "OpenRouter · Claude 3 Haiku (rapide)",
+    "google/gemini-2.0-flash-001": "OpenRouter · Gemini 2.0 Flash",
+    "google/gemini-flash-1.5": "OpenRouter · Gemini 1.5 Flash",
+    "meta-llama/llama-3.3-70b-instruct": "OpenRouter · Llama 3.3 70B",
+    "mistralai/mistral-large": "OpenRouter · Mistral Large",
+    "qwen/qwen-2.5-72b-instruct": "OpenRouter · Qwen 2.5 72B",
+    "deepseek/deepseek-chat-v3-0324": "OpenRouter · DeepSeek V3",
+}
+
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+ALL_MODELS = {**CLAUDE_MODELS, **OPENAI_MODELS, **OPENROUTER_MODELS}
 
 
 def segment_text_by_slides(
@@ -85,7 +101,16 @@ def _call_llm(prompt: str, model: str, api_key: str) -> str:
         )
         return response.content[0].text
 
-    # OpenAI
+    if model in OPENROUTER_MODELS:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE_URL)
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message.content
+
+    # Native OpenAI
     from openai import OpenAI
     client = OpenAI(api_key=api_key)
     response = client.chat.completions.create(
@@ -98,7 +123,6 @@ def _call_llm(prompt: str, model: str, api_key: str) -> str:
 
 def _parse_segments(raw: str, expected: int) -> list[str] | None:
     """Extract the segments array from LLM output."""
-    # Strip markdown code fences if present
     raw = re.sub(r"^```(?:json)?\s*", "", raw.strip(), flags=re.MULTILINE)
     raw = re.sub(r"```\s*$", "", raw.strip(), flags=re.MULTILINE)
 

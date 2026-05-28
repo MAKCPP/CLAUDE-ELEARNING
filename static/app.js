@@ -25,18 +25,49 @@ const resultSlides = $('result-slides');
 const resultDuration = $('result-duration');
 
 // ── Populate model select ─────────────────────
+const GROUPS = [
+  { prefix: 'claude-',       label: '── Anthropic  (clé sk-ant-…)' },
+  { prefix: 'gpt-',          label: '── OpenAI  (clé sk-…)' },
+  { prefix: 'openai/',       label: '── OpenRouter  (clé sk-or-v1-…)' },
+  { prefix: 'anthropic/',    label: null },   // merged into OpenRouter group
+  { prefix: 'google/',       label: null },
+  { prefix: 'meta-llama/',   label: null },
+  { prefix: 'mistralai/',    label: null },
+  { prefix: 'qwen/',         label: null },
+  { prefix: 'deepseek/',     label: null },
+];
+
 async function loadModels() {
   try {
     const res = await fetch('/api/models');
     const data = await res.json();
+
+    const groups = {
+      anthropic: { label: '── Anthropic  (clé sk-ant-…)', models: [] },
+      openai:    { label: '── OpenAI  (clé sk-…)',        models: [] },
+      openrouter:{ label: '── OpenRouter  (clé sk-or-v1-…)', models: [] },
+    };
+
+    for (const m of data.models) {
+      if (m.id.startsWith('claude-'))  groups.anthropic.models.push(m);
+      else if (m.id.startsWith('gpt-')) groups.openai.models.push(m);
+      else                              groups.openrouter.models.push(m);
+    }
+
     modelSel.innerHTML = '';
-    data.models.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.id;
-      opt.textContent = m.label;
-      if (m.id === 'claude-sonnet-4-6') opt.selected = true;
-      modelSel.appendChild(opt);
-    });
+    for (const g of Object.values(groups)) {
+      if (!g.models.length) continue;
+      const grp = document.createElement('optgroup');
+      grp.label = g.label;
+      g.models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label;
+        if (m.id === 'claude-sonnet-4-6') opt.selected = true;
+        grp.appendChild(opt);
+      });
+      modelSel.appendChild(grp);
+    }
   } catch {
     // keep default options from HTML
   }
